@@ -37,7 +37,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card>
                 <CardHeader>
                   <CardTitle>TanStack Query</CardTitle>
@@ -67,7 +67,7 @@ export default function Home() {
                     Schema-basierte Validierung mit Zod und optimaler Benutzerführung.
                   </p>
                   <Button asChild>
-                    <Link href="/examples/forms">Formular-Beispiele</Link>
+                    <Link href="/examples/forms">Form Beispiele</Link>
                   </Button>
                 </CardContent>
               </Card>
@@ -85,6 +85,23 @@ export default function Home() {
                   </p>
                   <Button asChild>
                     <Link href="#table">Tabellen-Beispiel</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>UI Features</CardTitle>
+                  <CardDescription>
+                    Toast, Modal & Loading States
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Erweiterte UI-Komponenten für bessere Benutzererfahrung.
+                  </p>
+                  <Button asChild>
+                    <Link href="/demos">Feature Demos</Link>
                   </Button>
                 </CardContent>
               </Card>
