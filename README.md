@@ -1,36 +1,225 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Next.js Template mit TanStack
 
-## Getting Started
+Ein modernes, sicheres Next.js Template mit TanStack-Bibliotheken, TypeScript und sicheren Coding-Praktiken.
 
-First, run the development server:
+## 🚀 Features
+
+### TanStack Integration
+- **TanStack Query**: Datenabfrage, Caching und Synchronisation
+- **TanStack Form**: Typsichere Formular-Validierung mit Zod
+- **TanStack Table**: Leistungsstarke Datentabellen mit Sortierung und Paginierung
+
+### Sicherheit & Best Practices
+- **TypeScript Strict Mode**: Vollständige Typisierung mit strengen Konfigurationen
+- **Zod Schema Validation**: Runtime-Validierung aller Eingaben
+- **Content Security Policy**: Schutz vor XSS und Code-Injection
+- **Security Headers**: Umfassende Sicherheitsheader
+- **ESLint Security Plugin**: Automatische Erkennung von Sicherheitslücken
+
+### Development Experience
+- **Prettier**: Automatische Code-Formatierung
+- **ESLint**: Strenge Linting-Regeln
+- **TypeScript**: Modernste TypeScript-Konfiguration
+- **Tailwind CSS**: Utility-first CSS Framework
+- **shadcn/ui**: Hochwertige UI-Komponenten
+
+## 📦 Installation
 
 ```bash
+# Repository klonen
+git clone <repository-url>
+cd nextjs-template
+
+# Abhängigkeiten installieren
+npm install
+
+# Development Server starten
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠️ Scripts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run dev        # Development Server mit Turbopack
+npm run build      # Production Build
+npm run start      # Production Server
+npm run lint       # ESLint ausführen
+npm run typecheck  # TypeScript Check
+npm run format     # Code formatieren
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## 🏗️ Projektstruktur
 
-## Learn More
+```
+src/
+├── app/                 # Next.js App Router
+│   ├── api/            # API Routes
+│   ├── globals.css     # Globale Styles
+│   ├── layout.tsx      # Root Layout
+│   ├── page.tsx        # Homepage
+│   └── providers.tsx   # React Context Providers
+├── components/
+│   ├── examples/       # Beispiel-Komponenten
+│   ├── providers/      # Provider-Komponenten
+│   ├── ui/            # shadcn/ui Komponenten
+│   └── core/          # Core-Komponenten
+├── hooks/             # Custom React Hooks
+├── lib/               # Utilities und Konfiguration
+│   ├── constants.ts   # App-Konstanten
+│   ├── schemas.ts     # Zod Schemas
+│   └── utils.ts       # Utility Functions
+```
 
-To learn more about Next.js, take a look at the following resources:
+## 🔒 Sicherheits-Features
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### TypeScript Konfiguration
+- `strict: true`
+- `noImplicitAny: true`
+- `noUncheckedIndexedAccess: true`
+- `exactOptionalPropertyTypes: true`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+### Content Security Policy
+- Strict CSP mit Nonce-based Script Loading
+- Blockierung von unsafe-inline und unsafe-eval
+- Schutz vor XSS-Angriffen
 
-## Deploy on Vercel
+### Security Headers
+- `X-Frame-Options: DENY`
+- `X-Content-Type-Options: nosniff`
+- `Referrer-Policy: strict-origin-when-cross-origin`
+- `Strict-Transport-Security`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Zod Schema Validation
+```typescript
+// Beispiel Schema
+const userSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(2).max(50),
+  email: z.string().email(),
+});
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## 📚 TanStack Beispiele
+
+### TanStack Query
+```typescript
+// Custom Hook für Benutzer
+export function useUsers() {
+  return useQuery({
+    queryKey: ["users"],
+    queryFn: fetchUsers,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+```
+
+### TanStack Form
+```typescript
+// Formular mit Zod Validation
+const form = useForm({
+  defaultValues: { name: "", email: "" },
+  validatorAdapter: zodValidator,
+  onSubmit: async ({ value }) => {
+    // Submit Logic
+  },
+});
+```
+
+### TanStack Table
+```typescript
+// Sortierbare Tabelle
+const table = useReactTable({
+  data,
+  columns,
+  getCoreRowModel: getCoreRowModel(),
+  getSortedRowModel: getSortedRowModel(),
+});
+```
+
+## 🎨 Styling
+
+Das Template verwendet Tailwind CSS mit einem angepassten Design-System:
+
+### Theme-Konfiguration
+- Dark/Light Mode Support
+- Responsive Design
+- Accessibility-optimierte Farben
+- Custom CSS Variables
+
+### shadcn/ui Komponenten
+- Button, Card, Input, Textarea
+- Form-Komponenten
+- Layout-Komponenten
+
+## 🧪 API-Beispiele
+
+### Sichere API Routes
+```typescript
+// /api/users/route.ts
+export async function GET(request: NextRequest) {
+  try {
+    const validatedData = userSchema.array().parse(data);
+    return NextResponse.json(validatedData);
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Validation Error" },
+      { status: 400 }
+    );
+  }
+}
+```
+
+## 🔧 Konfiguration
+
+### Environment Variables
+```env
+NODE_ENV=development
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+### VS Code Extensions (Empfohlen)
+- TypeScript Importer
+- ESLint
+- Prettier
+- Tailwind CSS IntelliSense
+- Error Lens
+
+## 🚀 Deployment
+
+### Vercel (Empfohlen)
+```bash
+npm run build
+vercel --prod
+```
+
+### Docker
+```dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY . .
+RUN npm run build
+EXPOSE 3000
+CMD ["npm", "start"]
+```
+
+## 📝 Lizenz
+
+MIT License - siehe [LICENSE](LICENSE) für Details.
+
+## 🤝 Beitragen
+
+1. Fork das Repository
+2. Erstelle einen Feature Branch (`git checkout -b feature/amazing-feature`)
+3. Committe deine Änderungen (`git commit -m 'Add amazing feature'`)
+4. Push zum Branch (`git push origin feature/amazing-feature`)
+5. Öffne eine Pull Request
+
+## 📞 Support
+
+Bei Fragen oder Problemen öffne bitte ein Issue im Repository.
+
+---
+
+**Gebaut mit ❤️ und modernsten Web-Technologien**

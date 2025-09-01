@@ -1,16 +1,23 @@
-'use client';
+"use client";
 
-import {ThemeProvider} from "next-themes";
-import React from "react";
+import { ThemeProvider } from "next-themes";
+import { QueryProvider } from "@/components/providers/QueryProvider";
 
-export function Providers({children}: { children: React.ReactNode }) {
-    return (
-        <ThemeProvider
-            attribute='class'
-            defaultTheme={'system'}
-            enableSystem={true}
-        >
-            {children}
-        </ThemeProvider>
-    );
+interface ProvidersProps {
+  readonly children: React.ReactNode;
+}
+
+export function Providers({ children }: ProvidersProps) {
+  return (
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
+      <QueryProvider>
+        {children}
+      </QueryProvider>
+    </ThemeProvider>
+  );
 }
