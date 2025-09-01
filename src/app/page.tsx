@@ -67,7 +67,7 @@ export default function Home() {
                     Schema-basierte Validierung mit Zod und optimaler Benutzerführung.
                   </p>
                   <Button asChild>
-                    <Link href="#contact">Kontaktformular</Link>
+                    <Link href="/examples/forms">Formular-Beispiele</Link>
                   </Button>
                 </CardContent>
               </Card>

@@ -1,137 +1,103 @@
 import { z } from "zod";
 
-// Basis-Validierungs-Schemas
-export const emailSchema = z
-  .string()
-  .min(1, "E-Mail-Adresse ist erforderlich")
-  .email("Ungültige E-Mail-Adresse");
-
-export const nameSchema = z
-  .string()
-  .min(2, "Name muss mindestens 2 Zeichen lang sein")
-  .max(50, "Name darf maximal 50 Zeichen lang sein")
-  .regex(/^[a-zA-ZäöüÄÖÜß\s]+$/, "Name darf nur Buchstaben und Leerzeichen enthalten");
-
-export const passwordSchema = z
-  .string()
-  .min(8, "Passwort muss mindestens 8 Zeichen lang sein")
-  .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, 
-    "Passwort muss mindestens einen Großbuchstaben, einen Kleinbuchstaben, eine Zahl und ein Sonderzeichen enthalten");
-
-// User Schema
 export const userSchema = z.object({
-  id: z.string().min(1, "ID ist erforderlich"),
-  name: nameSchema,
-  email: emailSchema,
-  avatar: z.string().url("Ungültige Avatar-URL").optional(),
+  id: z.string().min(1),
+  name: z.string().min(2).max(50),
+  email: z.string().email(),
+  avatar: z.string().url().optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
 
-export const createUserSchema = z.object({
-  name: nameSchema,
-  email: emailSchema,
-  password: passwordSchema,
-  avatar: z.string().url("Ungültige Avatar-URL").optional(),
+export const createUserSchema = userSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
 });
 
 export const updateUserSchema = createUserSchema.partial();
 
-export const loginSchema = z.object({
-  email: emailSchema,
-  password: z.string().min(1, "Passwort ist erforderlich"),
-});
-
-// Contact Form Schema mit detaillierter Validierung
 export const contactFormSchema = z.object({
-  name: nameSchema,
-  email: emailSchema,
-  subject: z
-    .string()
+  name: z.string()
+    .min(2, "Name muss mindestens 2 Zeichen lang sein")
+    .max(50, "Name darf maximal 50 Zeichen lang sein")
+    .regex(/^[a-zA-ZäöüÄÖÜß\s]+$/, "Name darf nur Buchstaben enthalten"),
+  email: z.string().email("Ungültige E-Mail-Adresse"),
+  subject: z.string()
     .min(5, "Betreff muss mindestens 5 Zeichen lang sein")
     .max(100, "Betreff darf maximal 100 Zeichen lang sein"),
-  message: z
-    .string()
+  message: z.string()
     .min(10, "Nachricht muss mindestens 10 Zeichen lang sein")
     .max(1000, "Nachricht darf maximal 1000 Zeichen lang sein"),
-  consent: z
-    .boolean()
-    .refine(val => val === true, {
-      message: "Sie müssen den Datenschutzbestimmungen zustimmen",
-    }),
-  phone: z
-    .string()
-    .regex(/^[\+]?[1-9][\d]{0,15}$/, "Ungültige Telefonnummer")
+  phone: z.string()
+    .regex(/^(\+?[\d\s\-\(\)]+)?$/, "Ungültige Telefonnummer")
     .optional()
     .or(z.literal("")),
+  consent: z.boolean().refine((val) => val === true, {
+    message: "Sie müssen den Datenschutzbestimmungen zustimmen",
+  }),
 });
 
-// Product Schema
+export const userPreferencesSchema = z.object({
+  company: z.string().max(100, "Firmenname darf maximal 100 Zeichen lang sein").optional(),
+  priority: z.enum(["low", "medium", "high"]).default("medium"),
+  newsletter: z.boolean().default(false),
+  notifications: z.boolean().default(true),
+  theme: z.enum(["light", "dark", "system"]).default("system"),
+});
+
+export const multiStepFormSchema = z.object({
+  // Step 1: Basic Info
+  firstName: z.string().min(2, "Vorname muss mindestens 2 Zeichen lang sein"),
+  lastName: z.string().min(2, "Nachname muss mindestens 2 Zeichen lang sein"),
+  email: z.string().email("Ungültige E-Mail-Adresse"),
+  phone: z.string().regex(/^\+?[\d\s\-\(\)]+$/, "Ungültige Telefonnummer"),
+  
+  // Step 2: Address
+  street: z.string().min(5, "Straße muss mindestens 5 Zeichen lang sein"),
+  city: z.string().min(2, "Stadt muss mindestens 2 Zeichen lang sein"),
+  zipCode: z.string().regex(/^\d{5}$/, "PLZ muss 5 Ziffern enthalten"),
+  country: z.string().min(2, "Land auswählen"),
+  
+  // Step 3: Preferences
+  interests: z.array(z.string()).min(1, "Mindestens ein Interesse auswählen"),
+  communicationMethod: z.enum(["email", "phone", "both"]),
+  newsletter: z.boolean(),
+  
+  // Step 4: Terms
+  terms: z.boolean().refine((val) => val === true, "AGBs müssen akzeptiert werden"),
+  privacy: z.boolean().refine((val) => val === true, "Datenschutz muss akzeptiert werden"),
+});
+
 export const productSchema = z.object({
   id: z.string().min(1),
-  name: z.string().min(1, "Produktname ist erforderlich"),
-  description: z.string().min(10, "Beschreibung muss mindestens 10 Zeichen lang sein"),
-  price: z.number().positive("Preis muss positiv sein"),
-  image: z.string().url("Ungültige Bild-URL"),
-  category: z.string().min(1, "Kategorie ist erforderlich"),
+  name: z.string().min(1),
+  description: z.string(),
+  price: z.number().positive(),
+  image: z.string().url(),
+  category: z.string(),
   inStock: z.boolean(),
-  tags: z.array(z.string()).optional(),
 });
 
-// API Response Schemas
-export const apiResponseSchema = z.object({
-  success: z.boolean(),
-  message: z.string().optional(),
-  data: z.unknown().optional(),
-  error: z.string().optional(),
-});
-
-export const paginationSchema = z.object({
-  page: z.number().int().positive(),
-  limit: z.number().int().positive().max(100),
-  total: z.number().int().nonnegative(),
-  totalPages: z.number().int().nonnegative(),
-});
-
-export const userListResponseSchema = z.object({
-  data: z.array(userSchema),
-  pagination: paginationSchema,
-});
-
-// Newsletter Schema
-export const newsletterSchema = z.object({
-  email: emailSchema,
-  categories: z.array(z.enum(["tech", "design", "business", "lifestyle"])).min(1, "Mindestens eine Kategorie auswählen"),
-});
-
-// Search Schema
-export const searchSchema = z.object({
-  query: z.string().min(1, "Suchbegriff ist erforderlich").max(100, "Suchbegriff zu lang"),
-  category: z.string().optional(),
-  sortBy: z.enum(["name", "date", "price", "popularity"]).default("name"),
-  order: z.enum(["asc", "desc"]).default("asc"),
-});
-
-// Type Exports
 export type User = z.infer<typeof userSchema>;
 export type CreateUser = z.infer<typeof createUserSchema>;
 export type UpdateUser = z.infer<typeof updateUserSchema>;
-export type LoginData = z.infer<typeof loginSchema>;
 export type ContactForm = z.infer<typeof contactFormSchema>;
+export type UserPreferences = z.infer<typeof userPreferencesSchema>;
+export type MultiStepForm = z.infer<typeof multiStepFormSchema>;
 export type Product = z.infer<typeof productSchema>;
-export type ApiResponse = z.infer<typeof apiResponseSchema>;
-export type UserListResponse = z.infer<typeof userListResponseSchema>;
-export type Newsletter = z.infer<typeof newsletterSchema>;
-export type SearchParams = z.infer<typeof searchSchema>;
 
-// Validation Helper Function
-export function validateSchema<T>(schema: z.ZodSchema<T>, data: unknown): { success: true; data: T } | { success: false; error: string } {
+// Utility function for schema validation
+export function validateSchema<T>(schema: z.ZodSchema<T>, data: unknown): 
+  { success: true; data: T } | { success: false; error: string } {
   try {
-    const validatedData = schema.parse(data);
-    return { success: true, data: validatedData };
+    const result = schema.parse(data);
+    return { success: true, data: result };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const errorMessage = error.issues.map((err) => `${err.path.join('.')}: ${err.message}`).join(', ');
+      const errorMessage = error.issues
+        .map(err => `${err.path.join('.')}: ${err.message}`)
+        .join(', ');
       return { success: false, error: errorMessage };
     }
     return { success: false, error: "Unbekannter Validierungsfehler" };
