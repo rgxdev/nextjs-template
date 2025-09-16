@@ -79,6 +79,104 @@ export const productSchema = z.object({
   inStock: z.boolean(),
 });
 
+// Advanced form schemas
+export const advancedUserSchema = z.object({
+  id: z.string().optional(),
+  profile: z.object({
+    firstName: z.string().min(2, "Vorname muss mindestens 2 Zeichen lang sein"),
+    lastName: z.string().min(2, "Nachname muss mindestens 2 Zeichen lang sein"),
+    email: z.string().email("Ungültige E-Mail-Adresse"),
+    avatar: z.string().url().optional(),
+    birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Format: YYYY-MM-DD"),
+    bio: z.string().max(500, "Bio darf maximal 500 Zeichen lang sein").optional(),
+  }),
+  address: z.object({
+    street: z.string().min(5, "Straße muss mindestens 5 Zeichen lang sein"),
+    houseNumber: z.string().min(1, "Hausnummer erforderlich"),
+    zipCode: z.string().regex(/^\d{5}$/, "PLZ muss 5 Ziffern enthalten"),
+    city: z.string().min(2, "Stadt muss mindestens 2 Zeichen lang sein"),
+    country: z.enum(["DE", "AT", "CH"]).refine((val) => ["DE", "AT", "CH"].includes(val), {
+      message: "Wählen Sie ein Land aus"
+    }),
+  }),
+  contacts: z.array(z.object({
+    type: z.enum(["phone", "email", "website"]),
+    value: z.string().min(1, "Wert erforderlich"),
+    isPrimary: z.boolean().default(false),
+  })).min(1, "Mindestens eine Kontaktmöglichkeit erforderlich"),
+  skills: z.array(z.object({
+    name: z.string().min(1, "Skill-Name erforderlich"),
+    level: z.enum(["beginner", "intermediate", "advanced", "expert"]),
+    yearsOfExperience: z.number().min(0).max(50),
+  })).optional(),
+  preferences: z.object({
+    theme: z.enum(["light", "dark", "system"]).default("system"),
+    language: z.enum(["de", "en", "fr"]).default("de"),
+    notifications: z.object({
+      email: z.boolean().default(true),
+      push: z.boolean().default(false),
+      sms: z.boolean().default(false),
+    }),
+    privacy: z.object({
+      profileVisible: z.boolean().default(true),
+      emailVisible: z.boolean().default(false),
+      phoneVisible: z.boolean().default(false),
+    }),
+  }),
+  tags: z.array(z.string()).max(10, "Maximal 10 Tags erlaubt").optional(),
+  isActive: z.boolean().default(true),
+  role: z.enum(["user", "admin", "moderator"]).default("user"),
+  metadata: z.record(z.string(), z.any()).optional(),
+});
+
+export const fileUploadSchema = z.object({
+  file: z.instanceof(File, { message: "Datei erforderlich" })
+    .refine((file) => file.size <= 5 * 1024 * 1024, "Datei darf maximal 5MB groß sein")
+    .refine((file) => ["image/jpeg", "image/png", "image/webp"].includes(file.type), 
+      "Nur JPEG, PNG und WebP Dateien erlaubt"),
+  title: z.string().min(1, "Titel erforderlich").max(100, "Titel zu lang"),
+  description: z.string().max(500, "Beschreibung zu lang").optional(),
+  tags: z.array(z.string()).max(5, "Maximal 5 Tags").optional(),
+  isPublic: z.boolean().default(false),
+});
+
+export const dynamicFormSchema = z.object({
+  formTitle: z.string().min(1, "Formular-Titel erforderlich"),
+  fields: z.array(z.object({
+    id: z.string(),
+    type: z.enum(["text", "email", "number", "select", "multiselect", "textarea", "checkbox", "radio", "date"]),
+    label: z.string().min(1, "Label erforderlich"),
+    placeholder: z.string().optional(),
+    required: z.boolean().default(false),
+    options: z.array(z.object({
+      label: z.string(),
+      value: z.string(),
+    })).optional(),
+    validation: z.object({
+      min: z.number().optional(),
+      max: z.number().optional(),
+      pattern: z.string().optional(),
+    }).optional(),
+  })).min(1, "Mindestens ein Feld erforderlich"),
+  responses: z.record(z.string(), z.any()).optional(),
+});
+
+export const tableFilterSchema = z.object({
+  search: z.string().optional(),
+  status: z.enum(["all", "active", "inactive", "pending"]).default("all"),
+  role: z.enum(["all", "user", "admin", "moderator"]).default("all"),
+  dateRange: z.object({
+    from: z.string().optional(),
+    to: z.string().optional(),
+  }).optional(),
+  sortBy: z.string().default("createdAt"),
+  sortOrder: z.enum(["asc", "desc"]).default("desc"),
+  page: z.number().min(1).default(1),
+  pageSize: z.number().refine((val) => [10, 25, 50, 100].includes(val), {
+    message: "Seitengröße muss 10, 25, 50 oder 100 sein"
+  }).default(25),
+});
+
 export type User = z.infer<typeof userSchema>;
 export type CreateUser = z.infer<typeof createUserSchema>;
 export type UpdateUser = z.infer<typeof updateUserSchema>;
@@ -86,6 +184,10 @@ export type ContactForm = z.infer<typeof contactFormSchema>;
 export type UserPreferences = z.infer<typeof userPreferencesSchema>;
 export type MultiStepForm = z.infer<typeof multiStepFormSchema>;
 export type Product = z.infer<typeof productSchema>;
+export type AdvancedUser = z.infer<typeof advancedUserSchema>;
+export type FileUpload = z.infer<typeof fileUploadSchema>;
+export type DynamicForm = z.infer<typeof dynamicFormSchema>;
+export type TableFilter = z.infer<typeof tableFilterSchema>;
 
 // Utility function for schema validation
 export function validateSchema<T>(schema: z.ZodSchema<T>, data: unknown): 

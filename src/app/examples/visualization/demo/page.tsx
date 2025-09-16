@@ -2,6 +2,7 @@ import { DataVisualization } from "@/components/examples/DataVisualization";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { HatchedBarMultipleChart } from "@/components/ui/hatched-bar-multiple-chart";
 
 export default function VisualizationDemoPage() {
   return (
@@ -25,6 +26,8 @@ export default function VisualizationDemoPage() {
         </div>
 
         <DataVisualization />
+
+        <HatchedBarMultipleChart />
       </div>
     </div>
   );
